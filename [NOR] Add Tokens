@@ -1,92 +1,73 @@
-(async () => {
-    let n = document.createElement('iframe');
-    document.body.append(n);
-    window.alert = n.contentWindow.alert.bind(window);
-    window.prompt = n.contentWindow.prompt.bind(window);
-    window.confirm = n.contentWindow.confirm.bind(window);
-    n.remove();
+// ==UserScript==
+// @name         Blooket Hack Script (Unlimited Coins)
+// @namespace    http://tampermonkey.net/
+// @version      2.0
+// @description  Automatically runs the Blooket hack script whenever you visit the Blooket website, and shows a popup message if rewards were added.
+// @match        https://play.blooket.com/*
+// @grant        none
+// ==/UserScript==
 
-    var getValues = () => new Promise((e, t) => {
-        try {
-            let n = window.webpackJsonp.map(e => Object.keys(e[1]).map(t => e[1][t])).reduce((e, t) => [...e, ...t], []).find(e => /\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/.test(e.toString()) && /\(new TextEncoder\)\.encode\(\"(.+?)\"\)/.test(e.toString())).toString();
-            e({
-                blooketBuild: n.match(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/)[0],
-                secret: n.match(/\(new TextEncoder\)\.encode\(\"(.+?)\"\)/)[1]
-            })
-        } catch {
-            t("Could not fetch auth details")
+/**
+* @license StewartPrivateLicense-2.0.1
+* Copyright (c) Aerell McKnight 2023
+*
+* You may not reproduce or distribute any code inside this file without the licenser's permission.
+* You may not copy, modify, steal, skid, or recreate any of the code inside this file.
+* You may not under any circumstance republish any code from this file as your own.
+* 
+* ALL TERMS STATED IN THE LINK BELOW APPLY ASWELL
+* https://github.com/Minesraft2/Blooket-Cheats/blob/main/LICENSE
+*/
+
+/* THE UPDATE CHECKER IS ADDED DURING COMMIT PREP, THERE MAY BE REDUNDANT CODE, DO NOT TOUCH */
+
+(function () {
+    'use strict';
+
+    // Define the function to be executed
+    function runBlooketHack() {
+        let i = document.createElement('iframe');
+        document.body.append(i);
+        window.alert = i.contentWindow.alert.bind(window);
+        i.remove();
+        if (!location.href.includes("play.blooket.com")) {
+            alert("This cheat only works on play.blooket.com, opening a new tab.");
+            window.open("https://play.blooket.com/");
+        } else {
+            const cache = Object.values(webpackJsonp.push([[], { ['']: (_, a, b) => { a.cache = b.c }, }, [['']],]).cache);
+            const axios = cache.find((x) => x.exports?.a?.get).exports.a;
+            axios.post("https://play.blooket.com/api/playersessions/solo", {
+                gameMode: "Factory",
+                questionSetId: ["60101da869e8c70013913b59", "625db660c6842334835cb4c6", "60268f8861bd520016eae038", "611e6c804abdf900668699e3", "60ba5ff6077eb600221b7145", "642467af9b704783215c1f1b", "605bd360e35779001bf57c5e", "6234cc7add097ff1c9cff3bd", "600b1491d42a140004d5215a", "5db75fa3f1fa190017b61c0c", "5fac96fe2ca0da00042b018f", "600b14d8d42a140004d52165", "5f88953cdb209e00046522c7", "600b153ad42a140004d52172", "5fe260e72a505b00040e2a11", "5fe3d085a529560004cd3076", "5f5fc017aee59500041a1456", "608b0a5863c4f2001eed43f4", "5fad491512c8620004918ace", "5fc91a9b4ea2e200046bd49a", "5c5d06a7deebc70017245da7", "5ff767051b68750004a6fd21", "5fdcacc85d465a0004b021b9", "5fb7eea20bd44300045ba495"][Math.floor(Math.random() * 24)]
+            }).then(async ({ data: { t } }) => {
+                await axios.post("https://play.blooket.com/api/playersessions/landings", { t });
+                const { name, blook: { name: blookUsed } } = await cache.find(x => x.exports.a?.me).exports.a.me({}).catch(() => alert('There was an error getting user data.'));
+                await axios.put("https://play.blooket.com/api/users/factorystats", {
+                    blookUsed, t, name,
+                    cash: Math.floor(Math.random() * 90000000) + 10000000,
+                    correctAnswers: Math.floor(Math.random() * 500) + 500,
+                    upgrades: Math.floor(Math.random() * 300) + 300,
+                    mode: "Time-Solo",
+                    nameUsed: "You",
+                    place: 1,
+                    playersDefeated: 0,
+                }).then(console.log);
+                axios.put("https://play.blooket.com/api/users/factorystats", {
+                    blookUsed, t, name,
+                    cash: Math.floor(Math.random() * 90000000) + 10000000,
+                    correctAnswers: Math.floor(Math.random() * 500) + 500,
+                    upgrades: Math.floor(Math.random() * 300) + 300,
+                    mode: "Time-Solo",
+                    nameUsed: "You",
+                    place: 1,
+                    playersDefeated: 0,
+                }).then(() => {
+                    alert("Coins and rewards added successfully!");
+                });
+            }).catch(() => alert('There was an error running the hack.'));
         }
-    })
-    var encodeValues = async (e, t) => {
-        let d = window.crypto.getRandomValues(new Uint8Array(12));
-        return window.btoa(Array.from(d).map(e => String.fromCharCode(e)).join("") + Array.from(new Uint8Array(await window.crypto.subtle.encrypt({
-            name: "AES-GCM",
-            iv: d
-        }, await window.crypto.subtle.importKey("raw", await window.crypto.subtle.digest("SHA-256", (new TextEncoder).encode(t)), {
-            name: "AES-GCM"
-        }, !1, ["encrypt"]), (new TextEncoder).encode(JSON.stringify(e))))).map(e => String.fromCharCode(e)).join(""))
-    };
-            fetch("https://api.blooket.com/api/users", { credentials: "include" }).then(x => x.json()).then(x => {
-                getValues().then(async e => {
-                    fetch("https://api.blooket.com/api/users/add-rewards", {
-                        method: "put",
-                        credentials: "include",
-                        headers: {
-                            "content-type": "application/json",
-                            "X-Blooket-Build": e.blooketBuild
-                        },
-                        body: await encodeValues({
-                            name: x.name,
-                            addedTokens: 500,
-                            addedXp: 300
-                        }, e.secret)
-                    });
-                    fetch("https://api.blooket.com/api/users/add-rewards", {
-                        method: "put",
-                        credentials: "include",
-                        headers: {
-                            "content-type": "application/json",
-                            "X-Blooket-Build": e.blooketBuild
-                        },
-                        body: await encodeValues({
-                            name: x.name,
-                            addedTokens: 500,
-                            addedXp: 300
-                        }, e.secret)
-                    }).then(() => alert('Added daily rewards!')).catch(() => alert('There was an error when adding rewards!'));;
-                }).catch(() => alert('There was an error encoding requests!'));
-            }).catch(() => alert('There was an error getting username!'));
+    }
+
+    // Execute the function
+    runBlooketHack();
 })();
-
-function footer() {
-    let element = document.createElement('div');
-
-    element.style = `font-family: "Nunito", sans-serif; font-size: 14px; height: 65px; width: 175px; border: 4px solid rgb(15, 15, 15); background: rgb(240, 240, 240); position: absolute; top: 20x; left: 20px; border-radius: 10px; color: rgb(0, 0, 0); text-align: center;`;
-    element.innerHTML = `<p>Made by gliz <br> My <a style="color: #0000ff;" href="https://twitter.com/glizuwu" target="_blank">twitter</a></p>`;
-    document.body.appendChild(element);
-
-    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-    element.onmousedown = ((e = window.event) => {
-        e.preventDefault();
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        document.onmouseup = (() => {
-            document.onmouseup = null;
-            document.onmousemove = null;
-        });
-        document.onmousemove = ((e) => {
-            e = e || window.event;
-            e.preventDefault();
-            pos1 = pos3 - e.clientX;
-            pos2 = pos4 - e.clientY;
-            pos3 = e.clientX;
-            pos4 = e.clientY;
-            let top = (element.offsetTop - pos2) > 0 ? (element.offsetTop - pos2) : 0;
-            let left = (element.offsetLeft - pos1) > 0 ? (element.offsetLeft - pos1) : 0;
-            element.style.top = top + "px";
-            element.style.left = left + "px";
-        });
-    });
-};
-
-footer();
